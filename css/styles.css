@@ -33,19 +33,24 @@ body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at
 .sr-art{width:40px;height:40px;border-radius:8px;background:var(--line);flex-shrink:0}
 .sr-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sr-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sr-year{font-size:11px;color:var(--muted);white-space:nowrap}
+.sr-year{font-size:11px;color:var(--muted);white-space:nowrap;margin-bottom:4px}
+.sr-play-btn{background:var(--accent);color:#08120f;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:900;cursor:pointer;transition:opacity .15s}
+.sr-play-btn:hover{opacity:.8}
 .sr-loading{padding:14px;font-size:12px;color:var(--muted);text-align:center}
-/* Vinyl button */
+/* Play toast */
+.play-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;transition:opacity .4s;opacity:0;white-space:nowrap}
+.play-toast.ok{background:var(--accent);color:#08120f}
+.play-toast.warn{background:#2d1a05;border:1px solid var(--gold);color:var(--gold)}
+/* Vinyl */
 .vinyl-btn{white-space:nowrap;letter-spacing:.04em}
 .vinyl-btn.on{background:linear-gradient(135deg,#1a0a2e,#2d1a5c);color:var(--accent2);border-color:var(--accent2);box-shadow:0 0 12px rgba(124,58,237,.35)}
-/* Vinyl mode art */
 .vinyl-spin .glow{opacity:1;animation:glowpulse 2s ease-in-out infinite}
 .vinyl-spin .disc{border-color:rgba(124,58,237,.35);animation:spin 4s linear infinite}
 .vinyl-spin .disc2{border-color:rgba(110,231,183,.25);animation:spin 2.5s linear infinite reverse}
 .vinyl-spin .dot{background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
 @keyframes glowpulse{0%,100%{opacity:.6}50%{opacity:1}}
 .vinyl-mode .art{background:radial-gradient(circle,#1a0a2e,#0b0d10) !important;border-color:rgba(124,58,237,.4) !important;box-shadow:0 0 40px rgba(124,58,237,.2)}
-/* rest of layout */
+/* Layout */
 .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
 .toggle{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:12px;color:var(--muted);cursor:pointer}
 .toggle.on{color:var(--accent);border-color:rgba(110,231,183,.32);background:rgba(110,231,183,.08)}
