@@ -1,6 +1,6 @@
 // CozyTunes — Spotify PKCE OAuth (no client secret, GitHub Pages compatible)
 
-const CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID'; // Replace with your Spotify app client ID
+const CLIENT_ID = '9f61aa90ed9e465d9bfd9f8f8b4e91e4';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user-read-currently-playing user-read-recently-played user-top-read user-library-read user-read-private';
 

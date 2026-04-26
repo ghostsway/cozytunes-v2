@@ -1,7 +1,7 @@
 // CozyTunes — Recommendation Engine
 // Pipeline: Spotify → Last.fm similar tracks + tags → MusicBrainz enrichment → CozyTunes scorer
 
-const LASTFM_KEY  = 'YOUR_LASTFM_API_KEY'; // Replace with your Last.fm API key
+const LASTFM_KEY  = 'e86e8c93a90515e8b4c33226b0b9e5a3';
 const LASTFM_BASE = 'https://ws.audioscrobbler.com/2.0/';
 const MB_BASE     = 'https://musicbrainz.org/ws/2';
 const MB_HEADERS  = { 'User-Agent': 'CozyTunes/2.0 (himanshsway@gmail.com)', 'Accept': 'application/json' };
@@ -20,7 +20,7 @@ export const getRecentTracks   = (token, n=50) => spotifyGet(`/me/player/recentl
 export const getTopTracks      = (token, n=50) => spotifyGet(`/me/top/tracks?limit=${n}&time_range=medium_term`, token).then(d => d?.items || []);
 export const getUserProfile    = (token) => spotifyGet('/me', token);
 
-// ─ Last.fm ──────────────────────────────────────────────────────────────────
+// ─ Last.fm ───────────────────────────────────────────────────────────────────
 
 async function lfmGet(params) {
   const url = new URL(LASTFM_BASE);
@@ -32,11 +32,11 @@ const getSimilarTracks   = (a, t, n=40) => lfmGet({ method:'track.getSimilar', a
 const getTrackTags       = (a, t)       => lfmGet({ method:'track.getTopTags', artist:a, track:t }).then(d => (d?.toptags?.tag||[]).slice(0,10).map(x=>x.name.toLowerCase()));
 const getTrackPlayCount  = (a, t)       => lfmGet({ method:'track.getInfo', artist:a, track:t }).then(d => parseInt(d?.track?.playcount||'0'));
 
-// ─ MusicBrainz ───────────────────────────────────────────────────────────
+// ─ MusicBrainz ───────────────────────────────────────────────────────────────
 
 async function getMBTags(artist, title) {
   try {
-    await new Promise(r => setTimeout(r, 300)); // rate limit
+    await new Promise(r => setTimeout(r, 300));
     const url = new URL(`${MB_BASE}/recording`);
     url.searchParams.set('query', `recording:"${title}" AND artist:"${artist}"`);
     url.searchParams.set('limit', '1');
@@ -44,7 +44,6 @@ async function getMBTags(artist, title) {
     const data = await (await fetch(url, { headers: MB_HEADERS })).json();
     const rec = data?.recordings?.[0];
     if (!rec) return { genres: [], area: null, year: null };
-
     const genres = (rec.genres || []).map(g => g.name.toLowerCase());
     let area = null;
     const artistId = rec['artist-credit']?.[0]?.artist?.id;
@@ -60,7 +59,7 @@ async function getMBTags(artist, title) {
   } catch(_) { return { genres:[], area:null, year:null }; }
 }
 
-// ─ Scorer ──────────────────────────────────────────────────────────────────
+// ─ Scorer ────────────────────────────────────────────────────────────────────
 
 function computeDNA(tags, year) {
   const t = tags.join(' ').toLowerCase();
@@ -123,12 +122,12 @@ function msToTime(ms) {
   return `${m}:${s}`;
 }
 
-// ─ Main pipeline ─────────────────────────────────────────────────────────
+// ─ Main pipeline ─────────────────────────────────────────────────────────────
 
 export async function analyzeTrack(track, token) {
-  const artist = track.artists[0].name;
-  const title  = track.name;
-  const year   = track.album?.release_date ? parseInt(track.album.release_date.slice(0,4)) : null;
+  const artist   = track.artists[0].name;
+  const title    = track.name;
+  const year     = track.album?.release_date ? parseInt(track.album.release_date.slice(0,4)) : null;
   const albumArt = track.album?.images?.[0]?.url || null;
 
   const [seedTags, similar, seedMB, recent, top] = await Promise.all([
@@ -172,12 +171,12 @@ export async function analyzeTrack(track, token) {
 
   return {
     track: { id:track.id, title, artist, album:track.album?.name, year, sub:`${artist} · ${track.album?.name} · ${year||'?'} · ${msToTime(track.duration_ms)}`, spotifyUrl:track.external_urls?.spotify, albumArt },
-    dna: computeDNA(allTags, seedYear),
+    dna:       computeDNA(allTags, seedYear),
     persona,
-    scene: seedRegion || detectScene(allTags),
+    scene:     seedRegion || detectScene(allTags),
     sceneMini: `${seedYear||'?'} · ${allTags.slice(0,3).join(', ')}`,
     matchScore: Math.min(99, Math.round(60+(userBehavior.saveRate+userBehavior.replayRate)*20)),
-    chips: allTags.slice(0,6),
+    chips:   allTags.slice(0,6),
     context: buildContext(track, recent, top, allTags),
     signals: {
       Genre:    allTags.slice(0,3).join(' · ')||'detecting...',
@@ -187,7 +186,7 @@ export async function analyzeTrack(track, token) {
       Behavior: userBehavior.saveRate>0.7 ? 'high save rate' : 'moderate engagement',
       Gems:     'low play count boosted',
     },
-    queue:  scored.slice(0,5).map(r=>[r.title,r.artist]),
-    recs:   scored.slice(0,8),
+    queue: scored.slice(0,5).map(r=>[r.title,r.artist]),
+    recs:  scored.slice(0,8),
   };
 }
